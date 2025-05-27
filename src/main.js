@@ -1,6 +1,4 @@
 import './css/styles.css';
-import 'izitoast/dist/css/iziToast.min.css';
-import iziToast from 'izitoast';
 
 import { getImagesByQuery } from './js/pixabay-api';
 import {
@@ -11,7 +9,7 @@ import {
   showLoadMoreButton,
   hideLoadMoreButton,
 } from './js/render-functions.js';
-
+import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 const form = document.querySelector('#search-form');
@@ -21,68 +19,108 @@ let currentQuery = '';
 let currentPage = 1;
 let totalPages = 0;
 
-form.addEventListener('submit', async event => {
+searchForm.addEventListener('submit', async event => {
   event.preventDefault();
+  const newQuery = searchInput.value.trim();
 
-  const searchQuery = event.target.elements.searchQuery.value.trim();
+  if (newQuery !== currentQuery) {
+    currentQuery = newQuery;
+    currentPage = 1;
+    clearGallery();
+    hideLoadMoreButton();
+  }
 
-  if (!searchQuery) {
-    iziToast.error({ message: 'Please enter a search query.' });
+  if (!currentQuery) {
+    iziToast.warning({
+      title: 'Warning',
+      message: 'Please enter a search term',
+      position: 'topRight',
+    });
     return;
   }
 
-  currentQuery = searchQuery;
-  currentPage = 1;
-  clearGallery();
-  hideLoadMoreButton();
-  showLoader();
-
-  try {
-    const data = await getImagesByQuery(currentQuery, currentPage);
-
-    if (data.hits.length === 0) {
-      iziToast.warning({ message: 'No images found. Try another keyword.' });
-      return;
-    }
-
-    createGallery(data.hits);
-    totalPages = Math.ceil(data.totalHits / 15);
-
-    if (currentPage < totalPages) {
-      showLoadMoreButton();
-    } else {
-      iziToast.info({ message: `You've reached the end of results.` });
-    }
-  } catch (error) {
-    iziToast.error({ message: 'Failed to fetch images.' });
-  } finally {
-    hideLoader();
-  }
+  await searchImages();
 });
 
 loadMoreBtn.addEventListener('click', async () => {
   currentPage += 1;
-  showLoader();
-  hideLoadMoreButton();
-
-  try {
-    const data = await getImagesByQuery(currentQuery, currentPage);
-    createGallery(data.hits);
-
-    if (currentPage >= totalPages) {
-      iziToast.info({ message: `You've reached the end of results.` });
-    } else {
-      showLoadMoreButton();
-    }
-
-    // Scroll
-    const cardHeight = document
-      .querySelector('.gallery-item')
-      .getBoundingClientRect().height;
-    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
-  } catch (error) {
-    iziToast.error({ message: 'Failed to load more images.' });
-  } finally {
-    hideLoader();
-  }
+  await searchImages();
 });
+
+async function searchImages() {
+  try {
+    showLoader();
+
+    const data = await getImagesByQuery(currentQuery, currentPage);
+
+    hideLoader();
+
+    if (data && data.hits && data.hits.length > 0) {
+      createGallery(data.hits);
+      totalHits = data.totalHits;
+
+      const loadedImages = currentPage * 15;
+      console.log(`Page: ${currentPage}, Images on page: ${data.hits.length}`);
+      console.log(`Total hits from API: ${totalHits}`);
+      console.log(`Calculated loaded images: ${loadedImages}`);
+      console.log(`Should hide button: ${loadedImages >= totalHits}`);
+
+      if (currentPage > 1) {
+        smoothScrollAfterLoad();
+      }
+
+      const actualLoadedImages =
+        document.querySelectorAll('.photo-card').length;
+
+      console.log(`Actual loaded images in DOM: ${actualLoadedImages}`);
+
+      if (actualLoadedImages < totalHits) {
+        showLoadMoreButton();
+        console.log('Showing Load More button');
+      } else {
+        hideLoadMoreButton();
+        console.log('Hiding Load More button - reached end');
+
+        iziToast.info({
+          title: 'End of results',
+          message: "We're sorry, but you've reached the end of search results.",
+          position: 'topRight',
+        });
+      }
+    } else {
+      hideLoadMoreButton();
+
+      if (currentPage === 1) {
+        iziToast.info({
+          title: 'No results',
+          message: 'Sorry, no images found. Try different keywords.',
+          position: 'topRight',
+        });
+      }
+    }
+  } catch (error) {
+    hideLoader();
+    hideLoadMoreButton();
+    console.error('Error:', error);
+    iziToast.error({
+      title: 'Error',
+      message: 'Something went wrong. Please try again.',
+      position: 'topRight',
+    });
+  }
+}
+
+function smoothScrollAfterLoad() {
+  const gallery = document.querySelector('.gallery');
+  const photoCard = gallery.querySelector('.photo-card');
+
+  if (photoCard) {
+    const cardHeight = photoCard.getBoundingClientRect().height;
+    const scrollDistance = cardHeight * 2;
+
+    window.scrollBy({
+      top: scrollDistance,
+      behavior: 'smooth',
+    });
+  }
+}

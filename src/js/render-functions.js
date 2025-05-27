@@ -13,27 +13,30 @@ const lightbox = new SimpleLightbox('.gallery a', {
 export function createGallery(images) {
   const markup = images
     .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => `
-      <li class="gallery-item">
-        <a href="${largeImageURL}">
-          <img src="${webformatURL}" alt="${tags}" />
-        </a>
-        <div class="info">
-          <p>👍 ${likes}</p>
-          <p>👁️ ${views}</p>
-          <p>💬 ${comments}</p>
-          <p>⬇️ ${downloads}</p>
+      image => `
+    <li class="photo-card">
+      <a href="${image.largeImageURL}">
+        <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
+      </a>
+      <div class="info">
+        <div class="info-item">
+          <b>Likes</b>
+          <span>${image.likes}</span>
         </div>
-      </li>
-    `
+        <div class="info-item">
+          <b>Views</b>
+          <span>${image.views}</span>
+        </div>
+        <div class="info-item">
+          <b>Comments</b>
+          <span>${image.comments}</span>
+        </div>
+        <div class="info-item">
+          <b>Downloads</b>
+          <span>${image.downloads}</span>
+        </div>
+      </div>
+    </li>`
     )
     .join('');
 
@@ -46,33 +49,25 @@ export function clearGallery() {
 }
 
 export function showLoader() {
-  loader.classList.remove('hidden');
-}
-
-export function hideLoader() {
-  loader.classList.add('hidden');
-}
-export function showLoadMoreButton() {
-  loadMoreBtn.classList.remove('is-hidden');
-}
-
-export function hideLoadMoreButton() {
-  loadMoreBtn.classList.add('is-hidden');
-}
-
-export function showEndOfCollectionMessage() {
-  if (!document.querySelector('.end-of-collection-message')) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('end-of-collection-message');
-    messageDiv.textContent =
-      "We're sorry, but you've reached the end of search results.";
-    document.body.appendChild(messageDiv);
+  if (loader) {
+    loader.classList.remove('is-hidden');
   }
 }
 
-export function hideEndOfCollectionMessage() {
-  const messageDiv = document.querySelector('.end-of-collection-message');
-  if (messageDiv) {
-    messageDiv.remove();
+export function hideLoader() {
+  if (loader) {
+    loader.classList.add('is-hidden');
+  }
+}
+
+export function showLoadMoreButton() {
+  if (loadMoreBtn) {
+    loadMoreBtn.classList.remove('is-hidden');
+  }
+}
+
+export function hideLoadMoreButton() {
+  if (loadMoreBtn) {
+    loadMoreBtn.classList.add('is-hidden');
   }
 }
