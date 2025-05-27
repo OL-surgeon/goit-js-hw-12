@@ -16,24 +16,30 @@
     />
   </head>
   <body>
-    <div class="container">
-      <form class="form">
-        <label>
-          <input
-            type="text"
-            name="search-text"
-            placeholder="Search images..."
-            required
-          />
-        </label>
-        <button type="submit">Search</button>
+    <header class="header">
+      <form class="search-form" id="search-form">
+        <input
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Пошук зображень..."
+          class="search-input"
+        />
+        <button type="submit" class="search-button">Пошук</button>
       </form>
+    </header>
 
-      <ul class="gallery"></ul>
-
-      <button type="button" class="load-more is-hidden">Load more</button>
-      <span class="loader is-hidden"></span>
-    </div>
+    <main>
+      <div class="gallery-container">
+        <ul class="gallery"></ul>
+      </div>
+      <div class="controls-container">
+        <button type="button" class="load-more-button is-hidden">
+          Завантажити ще
+        </button>
+        <div class="loader is-hidden"></div>
+      </div>
+    </main>
     <script type="module" src="./main.js"></script>
   </body>
 </html>

@@ -10,64 +10,72 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-export function createGallery(images) {
-  const markup = images
-    .map(
-      image => `
-    <li class="photo-card">
-      <a href="${image.largeImageURL}">
-        <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
-      </a>
-      <div class="info">
-        <div class="info-item">
-          <b>Likes</b>
-          <span>${image.likes}</span>
-        </div>
-        <div class="info-item">
-          <b>Views</b>
-          <span>${image.views}</span>
-        </div>
-        <div class="info-item">
-          <b>Comments</b>
-          <span>${image.comments}</span>
-        </div>
-        <div class="info-item">
-          <b>Downloads</b>
-          <span>${image.downloads}</span>
-        </div>
-      </div>
-    </li>`
-    )
-    .join('');
+function createImageCardMarkup(image) {
+  return `
+        <li class="gallery-item">
+            <a href="${image.largeImageURL}" class="gallery-link">
+                <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" class="gallery-image"/>
+            </a>
+            <div class="info">
+                <div class="info-details">
+                    <p class="info-item">
+                        <b>Likes</b>
+                        <span>${image.likes}</span>
+                    </p>
+                    <p class="info-item">
+                        <b>Views</b>
+                        <span>${image.views}</span>
+                    </p>
+                    <p class="info-item">
+                        <b>Comments</b>
+                        <span>${image.comments}</span>
+                    </p>
+                    <p class="info-item">
+                        <b>Downloads</b>
+                        <span>${image.downloads}</span>
+                    </p>
+                </div>
+            </div>
+        </li>
+    `;
+}
 
-  gallery.insertAdjacentHTML('beforeend', markup);
+export function createGallery(images) {
+  if (!galleryElement) {
+    console.error('Елемент галереї не знайдено!');
+    return;
+  }
+  const markup = images.map(image => createImageCardMarkup(image)).join('');
+  galleryElement.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
 }
 
 export function clearGallery() {
-  gallery.innerHTML = '';
+  if (galleryElement) {
+    galleryElement.innerHTML = '';
+  }
 }
 
 export function showLoader() {
-  if (loader) {
-    loader.classList.remove('is-hidden');
+  if (loaderElement) {
+    loaderElement.classList.remove('is-hidden');
   }
 }
 
 export function hideLoader() {
-  if (loader) {
-    loader.classList.add('is-hidden');
+  if (loaderElement) {
+    loaderElement.classList.add('is-hidden');
   }
 }
 
 export function showLoadMoreButton() {
-  if (loadMoreBtn) {
-    loadMoreBtn.classList.remove('is-hidden');
+  if (loadMoreButtonElement) {
+    loadMoreButtonElement.classList.remove('is-hidden');
   }
 }
 
 export function hideLoadMoreButton() {
-  if (loadMoreBtn) {
-    loadMoreBtn.classList.add('is-hidden');
+  if (loadMoreButtonElement) {
+    loadMoreButtonElement.classList.add('is-hidden');
   }
 }

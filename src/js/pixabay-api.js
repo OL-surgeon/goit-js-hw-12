@@ -15,9 +15,12 @@ export async function getImagesByQuery(query, page = 1) {
 
   try {
     const response = await axios.get(BASE_URL, { params });
+    if (response.status !== 200) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return response.data;
   } catch (error) {
-    console.error('Error fetching images:', error);
+    console.error('Помилка запиту до Pixabay API:', error);
     throw error;
   }
 }
