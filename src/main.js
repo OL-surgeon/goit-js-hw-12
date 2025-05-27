@@ -18,8 +18,8 @@ iziToast.settings({
   position: 'topRight',
 });
 
-const form = document.querySelector('#search-form');
-const loadMoreBtn = document.querySelector('.load-more');
+const searchForm = document.querySelector('#search-form');
+const loadMoreBtn = document.querySelector('.load-more-button');
 
 let currentQuery = '';
 let currentPage = 1;
